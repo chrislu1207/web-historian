@@ -37,6 +37,7 @@ exports.isUrlInList = function(url, cb) {
   fs.readFile(this.paths.list, 'utf8', function(err, data) {
     if (err) { console.log('not available'); }
     var urls = data.toString().split('\n');
+    console.log('Index: ', urls.indexOf(url), 'URLs: ', urls, 'Target: ', url);
     if (urls.indexOf(url) > -1) {
       cb(true);
     } else {
@@ -46,10 +47,14 @@ exports.isUrlInList = function(url, cb) {
 };
 
 exports.addUrlToList = function(url, cb) {
-  fs.writeFile(this.paths.list, url, function(err) {
-    if (err) { console.log('not available'); }
-    cb();
-  });
+  if (!this.isUrlInList(url + '\n', function (exist) {
+    return exist;
+  })) {
+    fs.appendFile(this.paths.list, url + '\n', function(err) {
+      if (err) { console.log('not available'); }
+      cb();
+    });
+  }
 };
 
 exports.isUrlArchived = function(url, cb) {

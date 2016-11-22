@@ -17,15 +17,38 @@ var httpHelpers = require('./http-helpers.js');
 var actions = {
   'GET': function(req, res) {
     if (req.url === '/') {
-      httpHelpers.serveAssets(res, archive.paths.siteAssets + '/index.html');
+      httpHelpers.serveAssets(res, archive.paths.siteAssets + '/index.html', 200);
     } else {
-      httpHelpers.serveAssets(res, archive.paths.archivedSites + '/' + req.url);
+      httpHelpers.serveAssets(res, archive.paths.archivedSites + '/' + req.url, 200);
     }
   },
 
   'POST': function(req, res) {
     httpHelpers.collectData(req, function(data) {
-      console.log(data);
+      var url = data.slice(4);
+      //console.log('User input', url);
+      //console.log('URL is', url);
+      if (archive.isUrlInList(url, function (exists) {
+        return exists;
+      })) {
+        console.log(url, 'exists in list');
+        if (archive.isUrlArchived(url, function (exists) {
+          return exists;
+        })) {
+          console.log(url, 'exists in archive');
+          console.log('Loading', url);
+          httpHelpers.serveAssets(res, archive.paths.archivedSites + '/' + url, 200);
+        } else {
+          console.log(url, 'does not exist in archive');
+          httpHelpers.serveAssets(res, archive.paths.siteAssets + '/loading.html', 200);
+        }
+      } else {
+        archive.addUrlToList(url, function () {
+          console.log(url, 'not in list, adding', url, 'to list');
+        });
+        httpHelpers.serveAssets(res, archive.paths.siteAssets + '/loading.html', 302);
+      }
+
     });
   },
 
