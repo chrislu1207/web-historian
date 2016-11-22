@@ -2,6 +2,8 @@ var path = require('path');
 var archive = require('../helpers/archive-helpers');
 var fs = require('fs');
 var httpHelpers = require('./http-helpers.js');
+var htmlFetcher = require('../workers/htmlfetcher.js');
+
 // require more modules/folders here!
 
 // exports.handleRequest = function (req, res) {
@@ -24,31 +26,26 @@ var actions = {
   },
 
   'POST': function(req, res) {
-    httpHelpers.collectData(req, function(data) {
+    httpHelpers.collectData(req, function (data) {
       var url = data.slice(4);
-      //console.log('User input', url);
-      //console.log('URL is', url);
-      if (archive.isUrlInList(url, function (exists) {
-        return exists;
-      })) {
-        console.log(url, 'exists in list');
-        if (archive.isUrlArchived(url, function (exists) {
-          return exists;
-        })) {
-          console.log(url, 'exists in archive');
-          console.log('Loading', url);
-          httpHelpers.serveAssets(res, archive.paths.archivedSites + '/' + url, 200);
+      if (archive.isUrlInList(url, function(exists) {
+        if (exists) {
+          if (archive.isUrlArchived(url, function(exists) {
+            if (exists) {
+              httpHelpers.serveAssets(res, archive.paths.archivedSites + '/' + url, 200);
+            } else {
+              httpHelpers.serveAssets(res, archive.paths.siteAssets + '/loading.html', 200);
+            }
+          })) {
+          }
         } else {
-          console.log(url, 'does not exist in archive');
-          httpHelpers.serveAssets(res, archive.paths.siteAssets + '/loading.html', 200);
+          archive.addUrlToList(url, function () {
+            console.log(url, 'not in list, adding', url, 'to list');
+          });
+          httpHelpers.serveAssets(res, archive.paths.siteAssets + '/loading.html', 302);
         }
-      } else {
-        archive.addUrlToList(url, function () {
-          console.log(url, 'not in list, adding', url, 'to list');
-        });
-        httpHelpers.serveAssets(res, archive.paths.siteAssets + '/loading.html', 302);
+      })) {
       }
-
     });
   },
 

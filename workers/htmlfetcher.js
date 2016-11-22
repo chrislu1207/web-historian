@@ -1,11 +1,17 @@
 // Use the code in `archive-helpers.js` to actually download the urls
 // that are waiting.
-var archive = require ('../helpers/archive-helpers.js');
+var archive = require('../helpers/archive-helpers.js');
+var request = require('request');
+var fs = require('fs');
 
-
-exports.htmlFetcher = function(url) {
-  // Compares list and archive
-  // Grabs what's in list and NOT in archive
-  // Creates an array with those
-  // Downloads all urls in that array
-};
+archive.readListOfUrls(function(urls) {
+  urls.forEach(function(url) {
+    request('http://' + url, function (error, response, body) {
+      if (!error) {
+        fs.writeFile(archive.paths.archivedSites + '/' + url, body, function(err) {
+          if (err) { console.log('Failed to download html'); }
+        });
+      }
+    });
+  });
+});

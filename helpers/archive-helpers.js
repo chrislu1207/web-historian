@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var request = require('request');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -37,7 +38,6 @@ exports.isUrlInList = function(url, cb) {
   fs.readFile(this.paths.list, 'utf8', function(err, data) {
     if (err) { console.log('not available'); }
     var urls = data.toString().split('\n');
-    console.log('Index: ', urls.indexOf(url), 'URLs: ', urls, 'Target: ', url);
     if (urls.indexOf(url) > -1) {
       cb(true);
     } else {
@@ -74,3 +74,25 @@ exports.downloadUrls = function(urls) {
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
