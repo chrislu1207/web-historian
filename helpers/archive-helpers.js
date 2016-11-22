@@ -25,17 +25,47 @@ exports.initialize = function(pathsObj) {
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function() {
+exports.readListOfUrls = function(cb) {
+  fs.readFile(this.paths.list, 'utf8', function(err, data) {
+    if (err) { console.log('not available'); }
+    var urls = data.toString().split('\n');
+    cb(urls);
+  });
 };
 
-exports.isUrlInList = function() {
+exports.isUrlInList = function(url, cb) {
+  fs.readFile(this.paths.list, 'utf8', function(err, data) {
+    if (err) { console.log('not available'); }
+    var urls = data.toString().split('\n');
+    if (urls.indexOf(url) > -1) {
+      cb(true);
+    } else {
+      cb(false);
+    }
+  });
 };
 
-exports.addUrlToList = function() {
+exports.addUrlToList = function(url, cb) {
+  fs.writeFile(this.paths.list, url, function(err) {
+    if (err) { console.log('not available'); }
+    cb();
+  });
 };
 
-exports.isUrlArchived = function() {
+exports.isUrlArchived = function(url, cb) {
+  fs.readdir(this.paths.archivedSites, function(err, files) {
+    if (files.indexOf(url) > -1) {
+      cb(true);
+    } else {
+      cb(false);
+    }
+  });
 };
 
-exports.downloadUrls = function() {
+exports.downloadUrls = function(urls) {
+  for (var i = 0; i < urls.length; i++) {
+    fs.writeFile(this.paths.archivedSites + '/' + urls[i], '', function(err) {
+      if (err) { console.log('not available'); }
+    });
+  }
 };
