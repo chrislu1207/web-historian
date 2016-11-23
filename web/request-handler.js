@@ -28,7 +28,7 @@ var actions = {
   'POST': function(req, res) {
     httpHelpers.collectData(req, function (data) {
       var url = data.slice(4);
-      if (archive.isUrlInList(url, function(exists) {
+      archive.isUrlInList(url, function(exists) {
         if (exists) {
           if (archive.isUrlArchived(url, function(exists) {
             if (exists) {
@@ -44,8 +44,7 @@ var actions = {
           });
           httpHelpers.serveAssets(res, archive.paths.siteAssets + '/loading.html', 302);
         }
-      })) {
-      }
+      });
     });
   },
 
